@@ -1,3 +1,3 @@
 module github.com/vadimi/go-ntlm
 
-go 1.14
+go 1.13
