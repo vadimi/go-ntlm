@@ -296,31 +296,19 @@ func (n *V2ClientSession) ProcessChallengeMessage(cm *ChallengeMessage) (err err
 	n.serverChallenge = cm.ServerChallenge
 	n.clientChallenge = randomBytes(8)
 
-	// Set up the default flags for processing the response. These are the flags that we will return
-	// in the authenticate message
-	flags := uint32(0)
-	flags = NTLMSSP_NEGOTIATE_KEY_EXCH.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_VERSION.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_TARGET_INFO.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_IDENTIFY.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_ALWAYS_SIGN.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_NTLM.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_DATAGRAM.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_SIGN.Set(flags)
-	flags = NTLMSSP_REQUEST_TARGET.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_UNICODE.Set(flags)
-	flags = NTLMSSP_NEGOTIATE_128.Set(flags)
-
-	n.NegotiateFlags = flags
+	n.NegotiateFlags = cm.NegotiateFlags
 
 	err = n.fetchResponseKeys()
 	if err != nil {
 		return err
 	}
 
+	var payload []byte
+	if NTLMSSP_NEGOTIATE_TARGET_INFO.IsSet(cm.NegotiateFlags) {
+		payload = cm.TargetInfoPayloadStruct.Payload
+	}
 	timestamp := timeToWindowsFileTime(time.Now())
-	err = n.computeExpectedResponses(timestamp, cm.TargetInfoPayloadStruct.Payload)
+	err = n.computeExpectedResponses(timestamp, payload)
 	if err != nil {
 		return err
 	}
@@ -335,19 +323,30 @@ func (n *V2ClientSession) ProcessChallengeMessage(cm *ChallengeMessage) (err err
 		return err
 	}
 
-	err = n.calculateKeys(cm.Version.NTLMRevisionCurrent)
+	ntlmRevision := uint8(0)
+	if cm.Version != nil {
+		ntlmRevision = cm.Version.NTLMRevisionCurrent
+	}
+
+	err = n.calculateKeys(ntlmRevision)
 	if err != nil {
 		return err
 	}
 
-	n.clientHandle, err = rc4Init(n.ClientSealingKey)
-	if err != nil {
-		return err
+	if len(n.ClientSigningKey) > 0 {
+		n.clientHandle, err = rc4Init(n.ClientSealingKey)
+		if err != nil {
+			return err
+		}
 	}
-	n.serverHandle, err = rc4Init(n.ServerSealingKey)
-	if err != nil {
-		return err
+
+	if len(n.ServerSealingKey) > 0 {
+		n.serverHandle, err = rc4Init(n.ServerSealingKey)
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
