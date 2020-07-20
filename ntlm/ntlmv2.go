@@ -14,7 +14,7 @@ import (
 
 /*******************************
  Shared Session Data and Methods
-*******************************/
+*******************************/ //
 
 type V2Session struct {
 	SessionData
@@ -67,14 +67,6 @@ func (n *V2Session) computeKeyExchangeKey() (err error) {
 }
 
 func (n *V2Session) calculateKeys(ntlmRevisionCurrent uint8) (err error) {
-	// This lovely piece of code comes courtesy of an the excellent Open Document support system from MSFT
-	// In order to calculate the keys correctly when the client has set the NTLMRevisionCurrent to 0xF (15)
-	// We must treat the flags as if NTLMSSP_NEGOTIATE_LM_KEY is set.
-	// This information is not contained (at least currently, until they correct it) in the MS-NLMP document
-	if ntlmRevisionCurrent == 15 {
-		n.NegotiateFlags = NTLMSSP_NEGOTIATE_LM_KEY.Set(n.NegotiateFlags)
-	}
-
 	n.ClientSigningKey = signKey(n.NegotiateFlags, n.exportedSessionKey, "Client")
 	n.ServerSigningKey = signKey(n.NegotiateFlags, n.exportedSessionKey, "Server")
 	n.ClientSealingKey = sealKey(n.NegotiateFlags, n.exportedSessionKey, "Client")
