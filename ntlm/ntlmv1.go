@@ -12,7 +12,7 @@ import (
 
 /*******************************
  Shared Session Data and Methods
-*******************************/ //
+*******************************/
 
 type V1Session struct {
 	SessionData

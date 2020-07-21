@@ -14,7 +14,7 @@ import (
 
 /*******************************
  Shared Session Data and Methods
-*******************************/ //
+*******************************/
 
 type V2Session struct {
 	SessionData
