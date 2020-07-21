@@ -1,7 +1,3 @@
-# IMPORTANT NOTE
-This repository will be removed on December 14th and will no longer be maintained and ownership will also not be transferred. Please fork this repositiory if you wish to continue to use it.
-
-
 # NTLM Implementation for Go
 
 This is a native implementation of NTLM for Go that was implemented using the Microsoft MS-NLMP documentation available at http://msdn.microsoft.com/en-us/library/cc236621.aspx.
