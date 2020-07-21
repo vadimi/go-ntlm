@@ -76,24 +76,27 @@ func ParseChallengeMessage(body []byte) (*ChallengeMessage, error) {
 	challenge.NegotiateFlags = binary.LittleEndian.Uint32(body[20:24])
 
 	challenge.ServerChallenge = body[24:32]
+	offset := 32
 
-	challenge.Reserved = body[32:40]
+	if NTLMSSP_NEGOTIATE_TARGET_INFO.IsSet(challenge.NegotiateFlags) {
+		challenge.Reserved = body[32:40]
 
-	challenge.TargetInfoPayloadStruct, err = ReadBytePayload(40, body)
-	if err != nil {
-		return nil, err
-	}
-
-	challenge.TargetInfo = ReadAvPairs(challenge.TargetInfoPayloadStruct.Payload)
-
-	offset := 48
-
-	if NTLMSSP_NEGOTIATE_VERSION.IsSet(challenge.NegotiateFlags) {
-		challenge.Version, err = ReadVersionStruct(body[offset : offset+8])
+		challenge.TargetInfoPayloadStruct, err = ReadBytePayload(40, body)
 		if err != nil {
 			return nil, err
 		}
-		offset = offset + 8
+
+		challenge.TargetInfo = ReadAvPairs(challenge.TargetInfoPayloadStruct.Payload)
+
+		offset = 48
+
+		if NTLMSSP_NEGOTIATE_VERSION.IsSet(challenge.NegotiateFlags) {
+			challenge.Version, err = ReadVersionStruct(body[offset : offset+8])
+			if err != nil {
+				return nil, err
+			}
+			offset = offset + 8
+		}
 	}
 
 	challenge.Payload = body[offset:]
@@ -163,7 +166,9 @@ func (c *ChallengeMessage) String() string {
 		buffer.WriteString(fmt.Sprintf("\nVersion: %s\n", c.Version.String()))
 	}
 	buffer.WriteString("\nTargetInfo")
-	buffer.WriteString(c.TargetInfo.String())
+	if c.TargetInfo != nil {
+		buffer.WriteString(c.TargetInfo.String())
+	}
 	buffer.WriteString(fmt.Sprintf("\nFlags %d\n", c.NegotiateFlags))
 	buffer.WriteString(FlagsToString(c.NegotiateFlags))
 
