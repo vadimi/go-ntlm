@@ -1,4 +1,4 @@
-//Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
+// Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
 
 package ntlm
 
@@ -54,6 +54,10 @@ type ChallengeMessage struct {
 }
 
 func ParseChallengeMessage(body []byte) (*ChallengeMessage, error) {
+	if len(body) < 32 {
+		return nil, errors.New("invalid NTLM challenge")
+	}
+
 	challenge := new(ChallengeMessage)
 
 	challenge.Signature = body[0:8]
@@ -79,6 +83,10 @@ func ParseChallengeMessage(body []byte) (*ChallengeMessage, error) {
 	offset := 32
 
 	if NTLMSSP_NEGOTIATE_TARGET_INFO.IsSet(challenge.NegotiateFlags) {
+		if len(body) < 48 {
+			return nil, errors.New("invalid NTLMSSP_NEGOTIATE_TARGET_INFO")
+		}
+
 		challenge.Reserved = body[32:40]
 
 		challenge.TargetInfoPayloadStruct, err = ReadBytePayload(40, body)

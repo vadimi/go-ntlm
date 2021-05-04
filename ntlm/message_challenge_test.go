@@ -1,4 +1,4 @@
-//Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
+// Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
 
 package ntlm
 
@@ -13,7 +13,6 @@ import (
 func TestDecodeChallenge(t *testing.T) {
 	challengeMessage := "TlRMTVNTUAACAAAAAAAAADgAAADzgpjiuaopAbx9ejQAAAAAAAAAAKIAogA4AAAABQLODgAAAA8CAA4AUgBFAFUAVABFAFIAUwABABwAVQBLAEIAUAAtAEMAQgBUAFIATQBGAEUAMAA2AAQAFgBSAGUAdQB0AGUAcgBzAC4AbgBlAHQAAwA0AHUAawBiAHAALQBjAGIAdAByAG0AZgBlADAANgAuAFIAZQB1AHQAZQByAHMALgBuAGUAdAAFABYAUgBlAHUAdABlAHIAcwAuAG4AZQB0AAAAAAA="
 	challengeData, err := base64.StdEncoding.DecodeString(challengeMessage)
-
 	if err != nil {
 		t.Error("Could not base64 decode message data")
 	}
@@ -61,5 +60,26 @@ func TestDecodeChallenge(t *testing.T) {
 		}
 	} else {
 		t.Error("Invalid challenge messsage bytes")
+	}
+}
+
+func TestParseChallengeEmptyMessage(t *testing.T) {
+	_, err := ParseChallengeMessage(nil)
+	if err == nil {
+		t.Error("expected error, got nil")
+	}
+}
+
+func TestParseChallengeInvalidNegotiateTargetInfo(t *testing.T) {
+	challengeMessage := "TlRMTVNTUAACAAAAAAAAADgAAADzgpjiuaopAbx9ejQA"
+
+	challengeData, err := base64.StdEncoding.DecodeString(challengeMessage)
+	if err != nil {
+		t.Error("Could not base64 decode message data")
+	}
+
+	_, err = ParseChallengeMessage(challengeData)
+	if err == nil {
+		t.Error("expected error, got nil")
 	}
 }
