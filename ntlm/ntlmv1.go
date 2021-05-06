@@ -1,4 +1,4 @@
-//Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
+// Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
 
 package ntlm
 
@@ -214,9 +214,9 @@ func (n *V1ServerSession) ProcessAuthenticateMessage(am *AuthenticateMessage) (e
 	}
 
 	if am.Version == nil {
-		//UGH not entirely sure how this could possibly happen, going to put this in for now
-		//TODO investigate if this ever is really happening
-		am.Version = &VersionStruct{ProductMajorVersion: uint8(5), ProductMinorVersion: uint8(1), ProductBuild: uint16(2600), NTLMRevisionCurrent: uint8(15)}
+		// UGH not entirely sure how this could possibly happen, going to put this in for now
+		// TODO investigate if this ever is really happening
+		am.Version = &VersionStruct{ProductMajorVersion: uint8(6), ProductMinorVersion: uint8(1), ProductBuild: uint16(7601), NTLMRevisionCurrent: uint8(15)}
 		log.Printf("Nil version in ntlmv1")
 	}
 
@@ -334,7 +334,7 @@ func (n *V1ClientSession) GenerateAuthenticateMessage() (am *AuthenticateMessage
 	am.Workstation, _ = CreateStringPayload("SQUAREMILL")
 	am.EncryptedRandomSessionKey, _ = CreateBytePayload(n.encryptedRandomSessionKey)
 	am.NegotiateFlags = n.NegotiateFlags
-	am.Version = &VersionStruct{ProductMajorVersion: uint8(5), ProductMinorVersion: uint8(1), ProductBuild: uint16(2600), NTLMRevisionCurrent: uint8(15)}
+	am.Version = &VersionStruct{ProductMajorVersion: uint8(6), ProductMinorVersion: uint8(1), ProductBuild: uint16(7601), NTLMRevisionCurrent: uint8(15)}
 	return am, nil
 }
 

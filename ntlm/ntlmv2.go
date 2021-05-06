@@ -1,4 +1,4 @@
-//Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
+// Copyright 2013 Thomson Reuters Global Resources. BSD License please see License file for more information
 
 package ntlm
 
@@ -77,11 +77,12 @@ func (n *V2Session) calculateKeys(ntlmRevisionCurrent uint8) (err error) {
 func (n *V2Session) Seal(message []byte) ([]byte, error) {
 	return nil, nil
 }
+
 func (n *V2Session) Sign(message []byte) ([]byte, error) {
 	return nil, nil
 }
 
-//Mildly ghetto that we expose this
+// Mildly ghetto that we expose this
 func NtlmVCommonMac(message []byte, sequenceNumber int, sealingKey, signingKey []byte, NegotiateFlags uint32) []byte {
 	var handle *rc4P.Cipher
 	// TODO: Need to keep track of the sequence number for connection oriented NTLM
@@ -183,7 +184,7 @@ func (n *V2ServerSession) GenerateChallengeMessage() (cm *ChallengeMessage, err 
 	cm.TargetInfo = pairs
 	cm.TargetInfoPayloadStruct, _ = CreateBytePayload(pairs.Bytes())
 
-	cm.Version = &VersionStruct{ProductMajorVersion: uint8(5), ProductMinorVersion: uint8(1), ProductBuild: uint16(2600), NTLMRevisionCurrent: uint8(15)}
+	cm.Version = &VersionStruct{ProductMajorVersion: uint8(6), ProductMinorVersion: uint8(1), ProductBuild: uint16(7601), NTLMRevisionCurrent: uint8(15)}
 	return cm, nil
 }
 
@@ -231,9 +232,9 @@ func (n *V2ServerSession) ProcessAuthenticateMessage(am *AuthenticateMessage) (e
 	}
 
 	if am.Version == nil {
-		//UGH not entirely sure how this could possibly happen, going to put this in for now
-		//TODO investigate if this ever is really happening
-		am.Version = &VersionStruct{ProductMajorVersion: uint8(5), ProductMinorVersion: uint8(1), ProductBuild: uint16(2600), NTLMRevisionCurrent: uint8(15)}
+		// UGH not entirely sure how this could possibly happen, going to put this in for now
+		// TODO investigate if this ever is really happening
+		am.Version = &VersionStruct{ProductMajorVersion: uint8(6), ProductMinorVersion: uint8(1), ProductBuild: uint16(7601), NTLMRevisionCurrent: uint8(15)}
 
 		log.Printf("Nil version in ntlmv2")
 	}
@@ -354,7 +355,7 @@ func (n *V2ClientSession) GenerateAuthenticateMessage() (am *AuthenticateMessage
 	am.EncryptedRandomSessionKey, _ = CreateBytePayload(n.encryptedRandomSessionKey)
 	am.NegotiateFlags = n.NegotiateFlags
 	am.Mic = make([]byte, 16)
-	am.Version = &VersionStruct{ProductMajorVersion: uint8(5), ProductMinorVersion: uint8(1), ProductBuild: uint16(2600), NTLMRevisionCurrent: 0x0F}
+	am.Version = &VersionStruct{ProductMajorVersion: uint8(6), ProductMinorVersion: uint8(1), ProductBuild: uint16(7601), NTLMRevisionCurrent: 0x0F}
 	return am, nil
 }
 
